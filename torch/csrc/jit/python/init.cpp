@@ -14,6 +14,7 @@
 #include <torch/csrc/jit/passes/common_subexpression_elimination.h>
 #include <torch/csrc/jit/passes/constant_pooling.h>
 #include <torch/csrc/jit/passes/constant_propagation.h>
+#include <torch/csrc/jit/passes/conv2d_batch_norm_folding.h>
 #include <torch/csrc/jit/passes/create_autodiff_subgraphs.h>
 #include <torch/csrc/jit/passes/dead_code_elimination.h>
 #include <torch/csrc/jit/passes/decompose_ops.h>
@@ -199,7 +200,14 @@ void initJITBindings(PyObject* module) {
       .def(
           "_jit_pass_quant_fusion",
           [](std::shared_ptr<Graph>& g) { return QuantFusion(g); })
-      .def("_jit_pass_fold_convbn", &FoldConvBatchNorm2d)
+      .def("_jit_pass_fold_convbn",
+          [](const script::Module& module) {
+          return FoldConvBatchNorm2d(module);
+          })
+      .def("_jit_pass_fold_convbn",
+          [](std::shared_ptr<Graph>& graph) {
+          FoldConvBatchNorm2d(graph);
+          })
       .def("_freeze_module",
           [](Module& module) {
             return freeze_module(module);
