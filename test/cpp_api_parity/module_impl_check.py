@@ -23,7 +23,7 @@ from cpp_api_parity import torch_nn_modules
 devices = ['cpu', 'cuda']
 
 # yf225 TODO: move to common utils?
-TORCH_NN_MODULE_COMMON_TEST_HARNESS = """\n
+TORCH_NN_MODULE_COMMON_TEST_HARNESS = """
 #include <torch/script.h>
 
 void write_ivalue_to_file(const torch::IValue& ivalue, const std::string& file_path) {
@@ -45,7 +45,7 @@ torch::Tensor _rand_tensor_non_equal(torch::IntArrayRef size) {
 }
 """
 
-TORCH_NN_MODULE_TEST_FORWARD_BACKWARD = Template("""\n
+TORCH_NN_MODULE_TEST_FORWARD_BACKWARD = Template("""
 void ${module_variant_name}_test_forward_backward(const std::string& device) {
   pybind11::gil_scoped_release no_gil;
 
@@ -88,9 +88,11 @@ def _compile_cpp_code_inline(name, cpp_sources, functions):
 
 def _test_torch_nn_module_variant(unit_test_class, test_params):
   def set_python_tensors_all_requires_grad(python_input):
-    # Why is this function not working???
-    if isinstance(python_input, torch.Tensor) and python_input.dtype != torch.long:
-      return python_input.requires_grad_(True)
+    if isinstance(python_input, torch.Tensor):
+      if python_input.dtype == torch.long:
+        return python_input
+      else:
+        return python_input.requires_grad_(True)
     else:
       return [set_python_tensors_all_requires_grad(tensor) for tensor in python_input]
 

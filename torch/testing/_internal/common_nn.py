@@ -336,6 +336,8 @@ def wrap_functional(fn, **kwargs):
             return fn(*args, **kwargs)
     return FunctionalModule
 
+# yf225 TODO: work on criterion tests
+# yf225 TODO: work on functional tests (aka. wrap_functional)
 
 def poissonnllloss_no_reduce_test():
     t = torch.randn(10, 10)
